@@ -1,18 +1,22 @@
-import os
-from dotenv import load_dotenv
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+import logging # for debugging and error logs
+from telegram.ext import Application, CommandHandler #handles commands
+from config import BOT_TOKEN
+from db import init_db
+from handlers.start import start_command
 
-load_dotenv()
-TOKEN = os.getenv("BOT_TOKEN")
+# logs to teh console
+logging.basicConfig(level=logging.INFO)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! This is a simple Telegram bot.")
+def main():
+    init_db()  # create database bfr bot starts
 
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = Application.builder().token(BOT_TOKEN).build() #creates a new instance
 
-    app.add_handler(CommandHandler("start", start))
+    # Handlers
+    app.add_handler(CommandHandler("start", start_command))
 
+    app.run_polling() # check continously for new updates/mesg 
+
+if __name__ == "__main__":
     print("Bot is running...")
-    app.run_polling()
+    main()
